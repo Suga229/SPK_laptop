@@ -1,31 +1,34 @@
--- phpMyAdmin SQL Dump
--- version 5.1.1
--- https://www.phpmyadmin.net/
---
--- Host: localhost:8889
--- Generation Time: Jan 06, 2022 at 03:26 PM
--- Server version: 5.7.34
--- PHP Version: 8.0.8
+-- phpMyAdmin SQL Dump (versi modifikasi untuk SPK Smartphone)
+-- Database: `saw_playstore`
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+ /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+ /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+ /*!40101 SET NAMES utf8mb4 */;
 
---
--- Database: `saw_playstore`
---
+-- =====================================================================
+-- BUAT DATABASE (kalau belum ada)
+-- =====================================================================
+CREATE DATABASE IF NOT EXISTS `saw_playstore`
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+USE `saw_playstore`;
 
--- --------------------------------------------------------
+-- =====================================================================
+-- HAPUS TABEL JIKA SUDAH ADA (supaya bersih)
+-- =====================================================================
+DROP TABLE IF EXISTS `saw_perankingan`;
+DROP TABLE IF EXISTS `saw_penilaian`;
+DROP TABLE IF EXISTS `saw_kriteria`;
+DROP TABLE IF EXISTS `saw_aplikasi`;
 
---
--- Table structure for table `saw_aplikasi`
---
+-- =====================================================================
+-- TABEL: saw_aplikasi (sekarang berisi data smartphone)
+-- =====================================================================
 
 CREATE TABLE `saw_aplikasi` (
   `nama` varchar(100) NOT NULL,
@@ -33,20 +36,21 @@ CREATE TABLE `saw_aplikasi` (
   `kategori` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Dumping data for table `saw_aplikasi`
---
-
+-- Data contoh: 3 smartphone
 INSERT INTO `saw_aplikasi` (`nama`, `pengembang`, `kategori`) VALUES
-('Clash Of Clans', 'Supercell', 'Permainan'),
-('Peduli Lindungi', 'Ministry of Health Republic Indonesia', 'Kesehatan'),
-('Tiktok', 'Tiktok Pte. Ltd.', 'Sosial');
+('Samsung Galaxy A55', 'Samsung', 'Mid-range'),
+('Xiaomi Redmi Note 13 Pro', 'Xiaomi', 'Mid-range'),
+('Realme 11 Pro', 'Realme', 'Mid-range');
 
--- --------------------------------------------------------
-
---
--- Table structure for table `saw_kriteria`
---
+-- =====================================================================
+-- TABEL: saw_kriteria (bobot kriteria)
+-- peringkat  = Performa & Ulasan
+-- ukuran     = Harga           (COST)
+-- unduhan    = Kapasitas Baterai
+-- aktif      = Kamera
+-- manfaat    = Fitur Pendukung
+-- kelebihan  = Ketersediaan / After Sales
+-- =====================================================================
 
 CREATE TABLE `saw_kriteria` (
   `no` int(11) NOT NULL,
@@ -58,18 +62,21 @@ CREATE TABLE `saw_kriteria` (
   `kelebihan` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Dumping data for table `saw_kriteria`
---
+-- Bobot contoh (total = 1.00)
+-- Performa  : 0.25
+-- Harga     : 0.20 (cost)
+-- Baterai   : 0.20
+-- Kamera    : 0.15
+-- Fitur     : 0.10
+-- Ketersediaan : 0.10
+INSERT INTO `saw_kriteria`
+(`no`, `peringkat`, `ukuran`, `unduhan`, `aktif`, `manfaat`, `kelebihan`) VALUES
+(1, 0.25, 0.20, 0.20, 0.15, 0.10, 0.10);
 
-INSERT INTO `saw_kriteria` (`no`, `peringkat`, `ukuran`, `unduhan`, `aktif`, `manfaat`, `kelebihan`) VALUES
-(7, 0.24, 0.18, 0.18, 0.12, 0.18, 0.12);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `saw_penilaian`
---
+-- =====================================================================
+-- TABEL: saw_penilaian
+-- Nilai 1–5 (kecuali rating bisa pecahan)
+-- =====================================================================
 
 CREATE TABLE `saw_penilaian` (
   `nama` varchar(100) NOT NULL,
@@ -81,20 +88,24 @@ CREATE TABLE `saw_penilaian` (
   `kelebihan` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Dumping data for table `saw_penilaian`
---
+-- Data contoh penilaian:
+-- peringkat : rating / performa (1–5)
+-- ukuran    : Harga           (1 = sangat mahal, 5 = sangat murah)
+-- unduhan   : Kapasitas baterai (1 = sangat kecil, 5 = sangat besar)
+-- aktif     : Kamera (1 = sangat buruk, 5 = sangat baik)
+-- manfaat   : Fitur pendukung (1 = sangat sedikit, 5 = sangat banyak)
+-- kelebihan : Ketersediaan / after sales (1 = sangat sulit, 5 = sangat mudah)
 
-INSERT INTO `saw_penilaian` (`nama`, `peringkat`, `ukuran`, `unduhan`, `aktif`, `manfaat`, `kelebihan`) VALUES
-('Clash Of Clans', 4.3, 2, 5, 4, 3, 3),
-('Peduli Lindungi', 3.6, 2, 4, 4, 4, 3),
-('Tiktok', 4.5, 3, 3, 3, 2, 2);
+INSERT INTO `saw_penilaian`
+(`nama`, `peringkat`, `ukuran`, `unduhan`, `aktif`, `manfaat`, `kelebihan`) VALUES
+('Samsung Galaxy A55',        4.5, 3, 4, 4, 4, 5),
+('Xiaomi Redmi Note 13 Pro',  4.4, 4, 5, 4, 4, 3),
+('Realme 11 Pro',             4.3, 4, 4, 3, 3, 3);
 
--- --------------------------------------------------------
-
---
--- Table structure for table `saw_perankingan`
---
+-- =====================================================================
+-- TABEL: saw_perankingan
+-- Akan di-TRUNCATE dan diisi ulang setiap kali hitung.php dijalankan.
+-- =====================================================================
 
 CREATE TABLE `saw_perankingan` (
   `no` int(11) NOT NULL,
@@ -102,60 +113,42 @@ CREATE TABLE `saw_perankingan` (
   `nilai_akhir` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Dumping data for table `saw_perankingan`
---
-
+-- Data contoh (hasil perhitungan SAW dari data di atas):
+-- (Catatan: begitu kamu buka hitung.php, tabel ini akan di-TRUNCATE
+-- dan diisi ulang sesuai data aktual.)
 INSERT INTO `saw_perankingan` (`no`, `nama`, `nilai_akhir`) VALUES
-(1, 'Clash Of Clans', 0.964),
-(2, 'Peduli Lindungi', 0.936),
-(3, 'Tiktok', 0.728);
+(1, 'Samsung Galaxy A55',       0.960),
+(2, 'Xiaomi Redmi Note 13 Pro', 0.904),
+(3, 'Realme 11 Pro',            0.796);
 
---
--- Indexes for dumped tables
---
+-- =====================================================================
+-- INDEXES
+-- =====================================================================
 
---
--- Indexes for table `saw_aplikasi`
---
 ALTER TABLE `saw_aplikasi`
   ADD PRIMARY KEY (`nama`);
 
---
--- Indexes for table `saw_kriteria`
---
 ALTER TABLE `saw_kriteria`
   ADD PRIMARY KEY (`no`);
 
---
--- Indexes for table `saw_penilaian`
---
 ALTER TABLE `saw_penilaian`
   ADD PRIMARY KEY (`nama`);
 
---
--- Indexes for table `saw_perankingan`
---
 ALTER TABLE `saw_perankingan`
   ADD PRIMARY KEY (`no`);
 
---
--- AUTO_INCREMENT for dumped tables
---
+-- =====================================================================
+-- AUTO_INCREMENT
+-- =====================================================================
 
---
--- AUTO_INCREMENT for table `saw_kriteria`
---
 ALTER TABLE `saw_kriteria`
-  MODIFY `no` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `no` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
---
--- AUTO_INCREMENT for table `saw_perankingan`
---
 ALTER TABLE `saw_perankingan`
   MODIFY `no` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+ /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+ /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
